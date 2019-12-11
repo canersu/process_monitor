@@ -7,6 +7,7 @@
 #include "process.h"
 #include "processor.h"
 #include "system.h"
+#include "linux_parser.h"
 
 using std::set;
 using std::size_t;
@@ -26,7 +27,29 @@ std::string System::Kernel() { return string(); }
 float System::MemoryUtilization() { return 0.0; }
 
 // TODO: Return the operating system name
-std::string System::OperatingSystem() { return string(); }
+std::string System::OperatingSystem() { 
+
+    //return string("can"); }
+  string line;
+  string key;
+  string value;
+  std::ifstream filestream(LinuxParser::kOSPath);
+  if (filestream.is_open()) {
+    while (std::getline(filestream, line)) {
+      std::replace(line.begin(), line.end(), ' ', '_');
+      std::replace(line.begin(), line.end(), '=', ' ');
+      std::replace(line.begin(), line.end(), '"', ' ');
+      std::istringstream linestream(line);
+      while (linestream >> key >> value) {
+        if (key == "PRETTY_NAME") {
+          std::replace(value.begin(), value.end(), '_', ' ');
+          return value;
+        }
+      }
+    }
+  }
+  return value;
+}
 
 // TODO: Return the number of processes actively running on the system
 int System::RunningProcesses() { return 0; }
