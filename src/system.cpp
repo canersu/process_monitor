@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include<iostream>
 
 #include "process.h"
 #include "processor.h"
@@ -35,7 +36,32 @@ std::string System::Kernel() {
     return kernel;
 }
 // TODO: Return the system's memory utilization
-float System::MemoryUtilization() { return 0.0; }
+float System::MemoryUtilization() { 
+  
+  //return 0.0; 
+  string line, key, value;
+  float mem_total, mem_free;
+  std::ifstream filestream(LinuxParser::kProcDirectory + LinuxParser::kMeminfoFilename);
+  if(filestream.is_open())
+  {
+    while(std::getline(filestream, line))
+    {
+      std::istringstream linestream(line);
+      while(linestream >> key >> value)
+      {
+        if(key == "MemTotal:")
+        {
+          mem_total = std::stof(value);
+        }
+        if(key == "MemFree:")
+        {
+          mem_free = std::stof(value);
+        }
+      }
+    }
+  }
+  return (mem_free/mem_total);
+}
 
 // TODO: Return the operating system name
 std::string System::OperatingSystem() { 
@@ -69,4 +95,17 @@ int System::RunningProcesses() { return 0; }
 int System::TotalProcesses() { return 0; }
 
 // TODO: Return the number of seconds since the system started running
-long int System::UpTime() { return 0; }
+long int System::UpTime() { 
+  //return 0; 
+    string line, total_time, second_time;
+    long int time;
+    std::ifstream stream(LinuxParser::kProcDirectory + LinuxParser::kUptimeFilename);
+    if(stream.is_open())
+    {
+      std::getline(stream, line);
+      std::istringstream linestream(line);
+      linestream >> total_time >> second_time;
+      time = std::stol(total_time);
+    }
+    return time;
+}
